@@ -180,7 +180,10 @@ public class PlayerJoinListener implements Listener {
                 }
 
                 secondsRemaining--;
-                player.setLevel(secondsRemaining);
+                // Prevent negative levels
+                if (secondsRemaining >= 0) {
+                    player.setLevel(secondsRemaining);
+                }
 
                 float decrement = 1.0f / timeoutSeconds;
                 expProgress -= decrement;

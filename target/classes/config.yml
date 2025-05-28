@@ -99,21 +99,22 @@ options:
 # Configuration for the verification web server. Ensure the port is open if hosting externally.
 Web:
   # Host Address:
-  # 1. This option must be filled with either:
-  #    - The machine's IP address (e.g., "192.168.1.100") if hosting locally.
-  #    - A domain name (e.g., "verify.yourserver.com") if hosting externally.
+  # 1. This option specifies the address used in the verification link sent to players upon joining.
+  #    - Use the server's public IP address (e.g., "148.113.6.42") for external access.
+  #    - Alternatively, use a domain name (e.g., "verify.yourserver.com") if configured with DNS.
   # 2. Why it's important:
-  #    - The host value is used to generate the verification link sent to players upon joining.
-  #    - If left empty, the default value will be "localhost," which resolves to the machine's internal loopback IP (127.0.0.1).
-  #    - Links with "localhost" will only work for the same machine where the server is running. Other players won't be able to access the verification website.
+  #    - The host value is included in the verification link (e.g., "http://<host>:<port>/captcha?uuid=<playerUUID>").
+  #    - Players must be able to access this link from their devices to complete verification.
+  #    - If set to "localhost" or left empty, the link will only work for players on the same machine as the server.
   # 3. Local Hosting:
-  #    - Use your machine's local IP (e.g., "192.168.x.x") to allow players on the same network to access the verification link.
-  #    - Example: "http://192.168.1.100:8080".
+  #    - For players on the same network, use the server's local IP (e.g., "192.168.x.x").
+  #    - Example link: "http://192.168.1.100:27064/captcha".
   # 4. External Hosting:
-  #    - Use a domain name (e.g., "verify.yourserver.com") and configure DNS to point to your server.
-  #    - Ensure the specified port (see below) is open and accessible through your firewall and router.
-  # 5. If this value is not configured:
-  #    - Players will receive a verification link with "localhost," which will not work for anyone other than the server's host machine.
+  #    - For players connecting externally, use the server's public IP or a domain name.
+  #    - Ensure the specified port (below) is open in your firewall and router or cloud provider's security group.
+  # 5. Note:
+  #    - The server binds to all network interfaces (0.0.0.0) by default, so this host value is used only for generating the verification link, not for server binding.
+  #    - If not configured, the default value is "localhost", which will not work for external players.
   host: ""
   # Port Configuration:
   # 1. Specify the port number for the web server:

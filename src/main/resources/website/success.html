@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Captcha Verified!</title>
+    <link rel="stylesheet" href="/styles.css?cb={cacheBust}">
+    <link rel="stylesheet" href="/animations.css?cb={cacheBust}">
+    <script src="/script.js?cb={cacheBust}" defer></script>
+</head>
+<body>
+<div class="minecraft-bg"></div>
+<div class="particles"></div>
+<div class="container">
+    <div class="dialog-box" style="animation: successPulse 1s infinite">
+        <div class="dialog-header">
+            <h1 class="minecraft-title">Captcha Verified!</h1>
+        </div>
+        <div class="dialog-content">
+            <div class="dialog-message">
+                <p>You can now return to the Minecraft server.</p>
+            </div>
+            <div class="success-checkmark">
+                <svg viewBox="0 0 80 80">
+                    <path fill="none" stroke="#62A855" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" d="M20 40 L35 55 L60 30"></path>
+                </svg>
+            </div>
+            <a href="minecraft://{uuid}" class="minecraft-button">
+                <span class="button-text">Return to Server</span>
+            </a>
+            <div class="minecraft-block"></div>
+        </div>
+    </div>
+</div>
+<footer>WebsiteCaptcha Plugin</footer>
+</body>
+</html>

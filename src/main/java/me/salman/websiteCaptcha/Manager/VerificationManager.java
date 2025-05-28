@@ -57,6 +57,10 @@ public class VerificationManager {
 
     public void clearPlayerVerification(UUID uuid) {
         sqliteManager.clearPlayerVerification(uuid);
+        Player player = Bukkit.getPlayer(uuid);
+        if (player != null && player.isOnline()) {
+            player.kickPlayer("§cYour verification has been cleared. Please re-verify to join.");
+        }
     }
 
     public void addPlayerToWhitelist(UUID uuid) {

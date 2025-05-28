@@ -7,6 +7,8 @@ import me.salman.websiteCaptcha.Main;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CaptchaHandler implements HttpHandler {
 
@@ -29,65 +31,18 @@ public class CaptchaHandler implements HttpHandler {
         }
 
         String uuid = query.split("uuid=")[1];
-        String cacheBust = String.valueOf(System.currentTimeMillis()); // Prevent caching
-        String response = """
-                <!DOCTYPE html>
-                <html lang="en">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>Google reCAPTCHA</title>
-                    <script src="https://www.google.com/recaptcha/api.js?cb=%s" async defer></script>
-                    <style>
-                        body {
-                            font-family: Arial, sans-serif;
-                            background-color: #f4f4f9;
-                            display: flex;
-                            justify-content: center;
-                            align-items: center;
-                            height: 100vh;
-                            margin: 0;
-                        }
-                        .container {
-                            text-align: center;
-                            background: #ffffff;
-                            border-radius: 10px;
-                            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                            padding: 20px;
-                            width: 300px;
-                        }
-                        h1 {
-                            color: #333;
-                        }
-                        button {
-                            background-color: #4CAF50;
-                            color: white;
-                            border: none;
-                            padding: 10px 20px;
-                            text-align: center;
-                            font-size: 16px;
-                            border-radius: 5px;
-                            cursor: pointer;
-                        }
-                        button:hover {
-                            background-color: #45a049;
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div class="container">
-                        <h1>Verify Yourself</h1>
-                        <p>Please complete the CAPTCHA below to proceed.</p>
-                        <form action="/verify" method="POST">
-                            <input type="hidden" name="uuid" value="%s" />
-                            <div class="g-recaptcha" data-sitekey="%s"></div>
-                            <br />
-                            <button type="submit">Verify</button>
-                        </form>
-                    </div>
-                </body>
-                </html>
-                """.formatted(cacheBust, uuid, siteKey);
+        String cacheBust = String.valueOf(System.currentTimeMillis());
+
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put("cacheBust", cacheBust);
+        placeholders.put("uuid", uuid);
+        placeholders.put("siteKey", siteKey);
+
+        String response = Main.getInstance().getWebsiteFileManager().loadWebsiteFile("captcha.html", placeholders);
+        if (response.startsWith("Error")) {
+            sendResponse(exchange, 500, response);
+            return;
+        }
 
         sendResponse(exchange, 200, response);
     }

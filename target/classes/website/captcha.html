@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Yourself</title>
+    <link rel="stylesheet" href="/styles.css?cb={cacheBust}">
+    <link rel="stylesheet" href="/animations.css?cb={cacheBust}">
+    <script src="/script.js?cb={cacheBust}" defer></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</head>
+<body>
+<div class="minecraft-bg"></div>
+<div class="particles"></div>
+<div class="container">
+    <div class="dialog-box">
+        <div class="dialog-header">
+            <h1 class="minecraft-title">Verify Yourself</h1>
+        </div>
+        <div class="dialog-content">
+            <div class="dialog-message">
+                <p>Please complete the CAPTCHA below to proceed.</p>
+            </div>
+            <form id="verification-form" action="/verify" method="POST">
+                <input type="hidden" name="uuid" value="{uuid}">
+                <div class="captcha-container">
+                    <div class="g-recaptcha" data-sitekey="{siteKey}"></div>
+                    <button type="submit" class="minecraft-button">
+                        <span class="button-text">Verify</span>
+                    </button>
+                </div>
+            </form>
+            <div class="minecraft-block"></div>
+        </div>
+    </div>
+</div>
+<footer>WebsiteCaptcha Plugin</footer>
+</body>
+</html>

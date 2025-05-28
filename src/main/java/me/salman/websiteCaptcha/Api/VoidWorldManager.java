@@ -19,6 +19,7 @@ import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,6 +29,7 @@ public class VoidWorldManager implements Listener {
 
     private static final ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
     private static final ConcurrentHashMap<UUID, Boolean> limboStatus = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<UUID, BukkitTask> titleTasks = new ConcurrentHashMap<>();
     private static final Location LIMBO_LOCATION = new Location(Bukkit.getWorlds().get(0), 2000, 1000, 2000);
 
     private static boolean sendTitle = false;
@@ -100,6 +102,12 @@ public class VoidWorldManager implements Listener {
         UUID playerUUID = player.getUniqueId();
         limboStatus.put(playerUUID, false);
         player.resetTitle();
+        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(""));
+        BukkitTask task = titleTasks.remove(playerUUID);
+        if (task != null) {
+            task.cancel();
+//            Bukkit.getLogger().info("[Limbo] Canceled title/action bar task for " + player.getName());
+        }
 
         World mainWorld = Bukkit.getWorlds().get(0);
         if (mainWorld != null) {
@@ -124,10 +132,7 @@ public class VoidWorldManager implements Listener {
         Player player = event.getPlayer();
         UUID playerUUID = player.getUniqueId();
         if (!limboStatus.getOrDefault(playerUUID, false)) {
-            Bukkit.getLogger().info("[Limbo] Player " + player.getName() + " is not in Limbo, executing VoidManager Join Listener.");
             sendToNormalWorld(player);
-        } else {
-            Bukkit.getLogger().info("[Limbo] Player " + player.getName() + " is in Limbo, skipping VoidManager Join Listener.");
         }
     }
 
@@ -136,16 +141,23 @@ public class VoidWorldManager implements Listener {
         UUID playerUUID = player.getUniqueId();
         if (limboStatus.containsKey(playerUUID)) {
             limboStatus.remove(playerUUID);
+            BukkitTask task = titleTasks.remove(playerUUID);
+            if (task != null) {
+                task.cancel();
+                Bukkit.getLogger().info("[Limbo] Canceled title/action bar task for " + player.getName() + " on disconnect.");
+            }
             Bukkit.getLogger().info("[Limbo] Removed " + player.getName() + " from Limbo on disconnect.");
         }
     }
 
     private static void keepTitleAndActionBar(Player player) {
-        new BukkitRunnable() {
+        UUID playerUUID = player.getUniqueId();
+        BukkitTask task = new BukkitRunnable() {
             @Override
             public void run() {
-                if (!limboStatus.containsKey(player.getUniqueId())) {
+                if (!limboStatus.containsKey(playerUUID) || !player.isOnline()) {
                     cancel();
+                    titleTasks.remove(playerUUID);
                     return;
                 }
                 new BukkitRunnable() {
@@ -155,7 +167,8 @@ public class VoidWorldManager implements Listener {
                     }
                 }.runTask(Main.getInstance());
             }
-        }.runTaskTimerAsynchronously(Main.getInstance(), 0L, 10L); // Every 0.5 seconds
+        }.runTaskTimerAsynchronously(Main.getInstance(), 0L, 10L);
+        titleTasks.put(playerUUID, task);
     }
 
     @EventHandler

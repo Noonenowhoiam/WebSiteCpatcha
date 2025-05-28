@@ -5,17 +5,22 @@ import me.salman.websiteCaptcha.Command.WebCaptchaCommand;
 import me.salman.websiteCaptcha.Database.SQLiteManager;
 import me.salman.websiteCaptcha.Listeners.*;
 import me.salman.websiteCaptcha.Manager.InventoryManager;
+import me.salman.websiteCaptcha.Manager.Loader.CustomFileLoader;
 import me.salman.websiteCaptcha.Manager.VerificationManager;
+import me.salman.websiteCaptcha.Manager.WebsiteFileManager;
 import me.salman.websiteCaptcha.Website.WebServer;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
+import java.util.Map;
 
 public class Main extends JavaPlugin {
     private WebServer webServer;
     private VerificationManager verificationManager;
     private SQLiteManager sqliteManager;
     private InventoryManager inventoryManager;
+    private WebsiteFileManager websiteFileManager;
+    private CustomFileLoader customFileLoader;
     private static Main instance;
 
     @Override
@@ -23,6 +28,22 @@ public class Main extends JavaPlugin {
         instance = this;
         saveDefaultConfig();
         getLogger().info("Starting WebsiteCaptcha plugin initialization...");
+
+        websiteFileManager = new WebsiteFileManager(this);
+        customFileLoader = new CustomFileLoader(this);
+        if (!websiteFileManager.setupWebsiteFolder()) {
+            getLogger().severe("Failed to set up website files. Disabling plugin.");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+
+        Map<String, String> customFiles = customFileLoader.loadCustomFiles();
+        if (!customFiles.isEmpty()) {
+            getLogger().info("Loaded " + customFiles.size() + " custom file(s).");
+            for (String fileName : customFiles.keySet()) {
+                getLogger().info("Loaded " + fileName + " file");
+            }
+        }
 
         try {
             Class.forName("org.sqlite.JDBC");
@@ -57,7 +78,7 @@ public class Main extends JavaPlugin {
 
         try {
             webServer = new WebServer(verificationManager);
-            webServer.start();
+            webServer.startServer();
             int port = getConfig().getInt("Web.port", 8080);
             String host = getConfig().getString("Web.host", "localhost");
             getLogger().info("Web server started on " + host + ":" + port);
@@ -85,7 +106,7 @@ public class Main extends JavaPlugin {
     @Override
     public void onDisable() {
         if (webServer != null) {
-            webServer.stop();
+            webServer.stopServer();
             getLogger().info("Web server stopped!");
         }
         if (sqliteManager != null) {
@@ -109,6 +130,14 @@ public class Main extends JavaPlugin {
 
     public VerificationManager getVerificationManager() {
         return verificationManager;
+    }
+
+    public WebsiteFileManager getWebsiteFileManager() {
+        return websiteFileManager;
+    }
+
+    public CustomFileLoader getCustomFileLoader() {
+        return customFileLoader;
     }
 
     public SQLiteManager getSQLiteManager() {
