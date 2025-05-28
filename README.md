@@ -41,7 +41,7 @@ WebsiteCaptcha protects your Minecraft server from unauthorized access by implem
 
 3. **Full Documentation**  
    For detailed installation steps, configuration options, and troubleshooting, check out our full docs at:  
-   [](http://websitecaptcha.unaux.com/index.html)
+   [.](http://websitecaptcha.unaux.com/index.html)
 
 
 ## Contributing
